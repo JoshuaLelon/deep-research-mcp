@@ -19,14 +19,14 @@ from . import \
 class ChiefEditorAgent:
     """Agent responsible for managing and coordinating editing tasks."""
 
-    def __init__(self, task: dict, websocket=None, stream_output=None, tone=None, headers=None):
+    def __init__(self, task: dict, websocket=None, stream_output=None, tone=None, headers=None, write_to_files: bool = False):
         self.task = task
         self.websocket = websocket
         self.stream_output = stream_output
         self.headers = headers or {}
         self.tone = tone
         self.task_id = self._generate_task_id()
-        self.output_dir = self._create_output_directory()
+        self.output_dir = self._create_output_directory() if write_to_files else None
 
     def _generate_task_id(self):
         # Currently time based, but can be any unique identifier

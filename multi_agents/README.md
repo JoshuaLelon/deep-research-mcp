@@ -102,3 +102,67 @@ langgraph up
 ```
 
 From there, see documentation [here](https://github.com/langchain-ai/langgraph-example) on how to use the streaming and async endpoints, as well as the playground.
+
+
+# Multi Agents Research Tool
+
+## Configuration
+- `write_reports_to_files` (default: False): Controls whether research reports are written to the filesystem
+  - When False: Results are only returned in memory/via API
+  - When True: Results are also written as files (PDF, DOCX, MD) to the output directory
+
+## Usage Examples
+
+### In-Memory Only (Default)
+```python
+result = await run_research_task(query="What is quantum computing?")
+print(result)  # Results returned directly, no files written
+```
+
+### With File Output
+```python
+result = await run_research_task(
+    query="What is quantum computing?",
+    write_reports_to_files=True
+)  # Results returned AND written to files
+```
+
+### Via MCP
+The deep_research tool supports the same options:
+```json
+{
+  "query": "What is quantum computing?",
+  "tone": "objective",
+  "write_reports_to_files": false
+}
+```
+```
+
+These changes make file writing completely optional while maintaining all existing functionality. The MCP server will now work without any file system access by default.
+
+# Multi Agents Research Tool
+
+## Features
+- Configurable file output (disabled by default)
+- Direct chat output support
+- MCP integration
+
+## Configuration
+- `write_to_files`: Boolean flag to control file output (default: False)
+  - When True: Generates PDF, DOCX, and Markdown files in outputs directory
+  - When False: Returns results directly without file system access
+
+## Usage
+```python
+# Direct output (default)
+result = await run_research_task(query="your query")
+
+# With file output
+result = await run_research_task(query="your query", write_to_files=True)
+```
+
+## MCP Integration
+The deep_research tool returns results directly in chat without file system access.
+```
+
+These changes should resolve the file system error and make file writing completely optional. The MCP integration will now work smoothly since it never attempts to write files.

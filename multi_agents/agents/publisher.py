@@ -15,7 +15,8 @@ class PublisherAgent:
         
     async def publish_research_report(self, research_state: dict, publish_formats: dict):
         layout = self.generate_layout(research_state)
-        await self.write_report_by_formats(layout, publish_formats)
+        if self.output_dir:
+            await self.write_report_by_formats(layout, publish_formats)
 
         return layout
 

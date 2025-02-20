@@ -117,3 +117,103 @@ python mcp_server.py
 - [ ] Confirm that when you run python mcp_server.py, the server starts and waits on stdio. Test from any MCP client (e.g., the Inspector or a custom client) to verify that the deep_research tool is discoverable and operational.
 
 That’s it! Once these steps are complete, you’ll have a functional MCP server exposing your “deep research” functionality from multi_agents/main.py via a neat “deep_research” tool.
+
+--
+
+Based on the error and your request, I'll outline a plan to refactor the MCP server to return research results directly to the chat instead of writing to files.
+
+# Refactoring Plan for MCP Deep Research Server
+
+## 1. Modify mcp_server.py
+- Remove file system outputs
+- Modify the tool to return structured results directly
+- Add proper typing for the response format
+
+```typescript:mcp_server.py
+# Modify the deep_research tool definition to specify structured output
+@app.list_tools()
+async def list_tools() -> list[types.Tool]:
+    return [
+        types.Tool(
+            name="deep_research",
+            description="Perform deep research using multi-agent architecture",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "tone": {"type": "string"},
+                    "query": {"type": "string"},
+                },
+                "required": ["tone", "query"]
+            }
+        )
+    ]
+
+@app.call_tool()
+async def call_tool(name: str, arguments: dict[str, Any]) -> list[types.Content]:
+    if name == "deep_research":
+        # Get research results directly without file output
+        results = await run_deep_research(arguments["tone"], arguments["query"])
+        
+        # Format results as text content
+        return [types.TextContent(
+            type="text",
+            text=results
+        )]
+    raise ValueError(f"Tool not found: {name}")
+```
+
+## 2. Modify multi_agents/main.py
+```python:multi_agents/main.py
+# Replace file writing with direct return
+async def main(tone: str, query: str) -> str:
+    # ... existing setup code ...
+    
+    # Instead of writing to files, collect output in a string
+    output = []
+    
+    # Modify research steps to append to output instead of writing files
+    for step in research_steps:
+        result = await step.execute()
+        output.append(result)
+    
+    # Return formatted results
+    return "\n\n".join(output)
+```
+
+## 3. Update README.md
+```markdown:multi_agents/README.md
+# Multi Agents Research Tool
+
+## Updates
+- Now returns research results directly to chat
+- No longer writes to filesystem
+- Structured output format for better readability
+
+## Usage via MCP
+The deep_research tool now returns results directly in the chat interface:
+
+Input:
+- tone: The desired tone for the response
+- query: The research question to investigate
+
+Output:
+- Formatted research results returned directly in chat
+```
+
+## Implementation Steps:
+
+1. Remove all file writing operations from multi_agents/main.py
+2. Modify the agent execution flow to collect results in memory
+3. Update the MCP server to properly format and return the results
+4. Test the changes using Claude Desktop to verify direct output
+
+## Testing:
+1. Run the MCP server
+2. Use Claude Desktop to make a research query
+3. Verify results appear directly in chat without file system errors
+4. Test different query types and response formats
+
+## Error Handling:
+- Add proper error handling for memory constraints
+- Include progress updates during long-running research
+- Format errors as readable messages in chat
