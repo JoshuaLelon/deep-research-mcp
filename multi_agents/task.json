@@ -1,6 +1,6 @@
 {
   "query": "Is AI in a hype cycle?",
-  "max_sections": 3,
+  "max_sections": 1,
   "publish_formats": {
     "markdown": true,
     "pdf": true,

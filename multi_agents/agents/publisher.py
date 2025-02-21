@@ -18,7 +18,15 @@ class PublisherAgent:
         if self.output_dir:
             await self.write_report_by_formats(layout, publish_formats)
 
-        return layout
+        # Return the layout wrapped in a proper structure
+        return {
+            "content": layout,
+            "format": "markdown",
+            "metadata": {
+                "title": research_state.get("headers", {}).get("title", ""),
+                "date": research_state.get("date", "")
+            }
+        }
 
     def generate_layout(self, research_state: dict):
         sections = '\n\n'.join(f"{value}"
@@ -56,9 +64,41 @@ class PublisherAgent:
     async def run(self, research_state: dict):
         task = research_state.get("task")
         publish_formats = task.get("publish_formats")
+        
         if self.websocket and self.stream_output:
-            await self.stream_output("logs", "publishing", f"Publishing final research report based on retrieved data...", self.websocket)
+            status_msg = {
+                "type": "status",
+                "message": "Publishing final research report...",
+                "progress": 0
+            }
+            await self.stream_output("logs", "publishing", status_msg, self.websocket)
         else:
-            print_agent_output(output="Publishing final research report based on retrieved data...", agent="PUBLISHER")
-        final_research_report = await self.publish_research_report(research_state, publish_formats)
-        return {"report": final_research_report}
+            print_agent_output(output="Publishing final research report...", agent="PUBLISHER")
+        
+        try:
+            result = await self.publish_research_report(research_state, publish_formats)
+            
+            if self.websocket and self.stream_output:
+                complete_msg = {
+                    "type": "status",
+                    "message": "Report published successfully",
+                    "progress": 100
+                }
+                await self.stream_output("logs", "publishing", complete_msg, self.websocket)
+            
+            return {
+                "status": "success",
+                "report": result,
+                "metadata": {
+                    "formats": list(publish_formats.keys()) if publish_formats else ["markdown"]
+                }
+            }
+            
+        except Exception as e:
+            error_msg = {
+                "type": "error",
+                "message": f"Error publishing report: {str(e)}"
+            }
+            if self.websocket and self.stream_output:
+                await self.stream_output("logs", "error", error_msg, self.websocket)
+            raise

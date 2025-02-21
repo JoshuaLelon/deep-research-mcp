@@ -16,7 +16,7 @@ class ResearchAgent:
         researcher = GPTResearcher(query=query, report_type=research_report, parent_query=parent_query,
                                    verbose=verbose, report_source=source, tone=tone, websocket=self.websocket, headers=self.headers)
         # Conduct research on the given query
-        await researcher.conduct_research()
+        await researcher.plan_research(query=query)
         # Write the report
         report = await researcher.write_report()
 

@@ -64,11 +64,13 @@ class EditorAgent:
 
         self._log_parallel_research(queries)
 
-        final_drafts = [
-            chain.ainvoke(self._create_task_input(
-                research_state, query, title))
-            for query in queries
-        ]
+        # final_drafts = [
+        #     chain.ainvoke(self._create_task_input(
+        #         research_state, query, title))
+        #     for query in queries
+        # ]
+        # just do one query
+        final_drafts = [chain.ainvoke(self._create_task_input(research_state, queries[0], title))]
         research_results = [
             result["draft"] for result in await asyncio.gather(*final_drafts)
         ]

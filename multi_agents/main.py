@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from multi_agents.agents import ChiefEditorAgent
 import asyncio
 import json
+from gpt_researcher import GPTResearcher
 from gpt_researcher.utils.enum import Tone
 
 # Run with LangSmith if API key is set
@@ -33,12 +34,48 @@ async def run_research_task(query, websocket=None, stream_output=None, tone=Tone
     task["query"] = query
 
     chief_editor = ChiefEditorAgent(task, websocket, stream_output, tone, headers)
-    research_report = await chief_editor.run_research_task()
+    try:
+        research_report = await chief_editor.run_research_task()
+        
+        if websocket and stream_output:
+            # Format as JSON message
+            message = {
+                "report": research_report,
+                "status": "complete"
+            }
+            await stream_output("logs", "research_report", message, websocket)
+        
+        return research_report
+    except Exception as e:
+        error_msg = {
+            "error": str(e),
+            "status": "failed"
+        }
+        if websocket and stream_output:
+            await stream_output("logs", "error", error_msg, websocket)
+        raise
 
-    if websocket and stream_output:
-        await stream_output("logs", "research_report", research_report, websocket)
+async def run_get_sources(query, websocket=None, stream_output=None, tone=Tone.Objective, headers=None):
+    try:
+        # Initialize the researcher
+        researcher = GPTResearcher(query=query, report_type="research_report", parent_query="", verbose=False, report_source="web", tone=None, websocket=None, headers=None)
+        # Conduct research on the given query
+        research_report = await researcher.plan_research()
+        return research_report
+    except Exception as e:
+        error_msg = {
+            "error": str(e),
+            "status": "failed"
+        }
+        if websocket and stream_output:
+            await stream_output("logs", "error", error_msg, websocket)
+        raise
 
-    return research_report
+# async def get_outline(sources=sources, websocket=None, stream_output=None, tone=Tone.Objective, headers=None):
+#     pass
+
+# async def get_draft(outline=outline, websocket=None, stream_output=None, tone=Tone.Objective, headers=None):
+#     pass
 
 async def main():
     task = open_task()
