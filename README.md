@@ -81,18 +81,3 @@ multi_agents/
 ├─ __init__.py
 └─ requirements.txt
 ```
-
-## Environment Variables
-
-- `OPENAI_API_KEY` (optional) – Needed if you plan to use OpenAI-based models.
-- `LANGCHAIN_API_KEY` (optional) – If you’re using LangChain features that require an API key.
-- Additional variables can be added as needed in your `.env`.
-
-## Contributing
-
-Feel free to open issues or pull requests if you spot any bugs or have ideas for new features.  
-
----
-
-**Update all relevant Markdown documentation files**:  
-If you modify the code in the `multi_agents` directory or elsewhere, be sure to also update this top-level `README.md` and any other README files in the corresponding subdirectories to keep the documentation consistent.
