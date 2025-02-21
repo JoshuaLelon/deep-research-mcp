@@ -1,4 +1,3 @@
-```markdown:README.md
 # Deep Research MCP
 
 This repository provides a multi-agent research framework using Python and MCP (Message Control Protocol). The default entrypoint is `mcp_server.py`, which sets up a FastMCP server named **Deep Research** and exposes a tool named `deep_research`.
@@ -26,18 +25,18 @@ This repository provides a multi-agent research framework using Python and MCP (
    ```
 
 4. Edit your `claude_desktop_config.json` file to include the following:
-```
-{
-    "mcpServers": {
-        "deep-research-mcp": {
-            "command": "path/to/your/python/interpreter",
-            "args": [
-                "/path/to/this/project/deep-research-mcp/mcp_server.py"
-            ]
+    ```
+    {
+        "mcpServers": {
+            "deep-research-mcp": {
+                "command": "path/to/your/python/interpreter",
+                "args": [
+                    "/path/to/this/project/deep-research-mcp/mcp_server.py"
+                ]
+            }
         }
     }
-}
-```
+    ```
 
 5. **Run the MCP Server:**
    ```bash
