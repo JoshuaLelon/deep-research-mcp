@@ -37,7 +37,7 @@ async def deep_research(
         async def stream_output(type: str, key: str, value: Any, _):
             if ctx:
                 if type == "logs":
-                    ctx.info(f"{key}: {value}")
+                    ctx.info(f"stream_output logs:{key}: {value}")
                 elif type == "progress":
                     await ctx.report_progress(value, 100)
 

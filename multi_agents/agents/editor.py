@@ -32,20 +32,27 @@ class EditorAgent:
         max_sections = task.get("max_sections")
 
         prompt = self._create_planning_prompt(
-            initial_research, include_human_feedback, human_feedback, max_sections)
+            initial_research, include_human_feedback, human_feedback, max_sections
+        )
 
         print_agent_output(
-            "Planning an outline layout based on initial research...", agent="EDITOR")
+            "Planning an outline layout based on initial research...", agent="EDITOR"
+        )
         plan = await call_model(
             prompt=prompt,
             model=task.get("model"),
             response_format="json",
         )
 
+        # Restrict to exactly one section
+        sections = plan.get("sections", [])
+        if len(sections) > 1:
+            sections = sections[:1]
+
         return {
             "title": plan.get("title"),
             "date": plan.get("date"),
-            "sections": plan.get("sections"),
+            "sections": sections,
         }
 
     async def run_parallel_research(self, research_state: Dict[str, any]) -> Dict[str, List[str]]:
